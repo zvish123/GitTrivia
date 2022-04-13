@@ -1,0 +1,8 @@
+1|questions.txt|Test trivia file|3
+2|trivia1.txt|Known Qoutes|15
+3|trivia2.txt|General knowledge|15
+4|trivia3.txt|Facts on January|15
+5|trivia4.txt|The year 2022|15
+6|trivia5.txt|Colors|15
+7|Multiple_Choice_Trivia.txt|Big quiz|42
+

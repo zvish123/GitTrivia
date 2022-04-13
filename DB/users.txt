@@ -1,0 +1,12 @@
+abc|123|70
+test|test|20
+admin|AaBbCcDd#|50
+blabla|hello|0
+super|trooper|0
+super2|trooper2|0
+bilby|m0unt41ns|0
+trivia_king|KING|15
+hackerman|TriCeRaCop|0
+mrhemulin|flowerz|0
+bambababy|peanuts|5
+a|1|45
