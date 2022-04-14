@@ -1,0 +1,1 @@
+{"users": [{"userName": "abc", "password": "123", "totalScore": 110, "triviaRepository": "trivia2.txt", "usedQuestions": [1010, 1020, 1000]}, {"userName": "test", "password": "test", "totalScore": 20, "triviaRepository": "trivia4.txt", "usedQuestions": []}, {"userName": "admin", "password": "admin", "totalScore": 100, "triviaRepository": "trivia1.txt", "usedQuestions": []}]}

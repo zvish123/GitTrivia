@@ -5,7 +5,7 @@ SERVER_IP = "127.0.0.1"  # Our server will run on same computer as client
 SERVER_PORT = 5678
 
 DISPLAY_MSG = False
-current_game = chatlib.DEFAULT_GAME
+current_game = ""
 # HELPER SOCKET METHODS
 menu_dict = {0:'Login',1:'Get score', 2:'Get Question', 3:'Send Answer',4:'Get High score',
             5: 'Logged users',6:"Play Question", 7: 'Get Games list', 8: "Send Game Selection", 9:'Logout', 10:'Exit'}
@@ -55,6 +55,10 @@ def error_and_exit(msg):
 
 
 def login(conn):
+    global menu_str
+    global menu_dict
+    global current_game
+
     cmd = 'ERROR'
     while cmd == 'ERROR':
         username = input ("Please enter username: \n")
@@ -66,6 +70,8 @@ def login(conn):
             print(cmd, msg)
         if cmd == chatlib.PROTOCOL_SERVER["login_ok_msg"]:
             print('You have logged in')
+            current_game = msg
+            menu_str = "Select menu option:\n" + dict_to_str(menu_dict) + '\n'
         else:
             print('Error in user or password')
         return cmd
@@ -73,7 +79,11 @@ def login(conn):
 
 def logout(conn):
     # Implement code
+    global current_game
+    global menu_str
     build_and_send_message (conn, chatlib.PROTOCOL_CLIENT["logout_msg"], "")
+    current_game = ''
+    menu_str = "Select menu option:\n" + dict_to_str(menu_dict) + '\n'
 
 
 #Targil 3
@@ -202,16 +212,16 @@ def dict_to_str(dict):
 def main():
     global menu_str
     global menu_dict
+    global current_game
     # Implement code
     client_socket = connect ()
-
-    menu_str = "Select menu option:\n " + dict_to_str(menu_dict) + '\n'
 
     is_logged_in = False
     flag = True
     last_question_id = -1
     option = 0
     #"Select menu option: 0. login 1. Get Score  8. Logout 9.Exit"
+    menu_str = "Select menu option:\n " + dict_to_str(menu_dict) + '\n'
     while flag:
         try:
             option = int(input(menu_str))

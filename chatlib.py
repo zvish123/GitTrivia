@@ -22,7 +22,8 @@ COMMAND_ADDITIONAL_DATA = {
     "GAMES_LIST" : (None, '\n'),
     "GAME_SELECT_OK" : (2, '#'),
     "GAME_SELECT_NOT_OK" : (2, '#'),
-    "SEND_GAME" : (1, None)
+    "SEND_GAME" : (1, None),
+    "LOGIN_OK" : (1, None)
 }
 
 PROTOCOL_CLIENT = {

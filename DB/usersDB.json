@@ -1,0 +1,1 @@
+{"abc": {"password": "123", "score": 135, "triviaRepository": "trivia3.txt", "questions_asked": []}, "test": {"password": "test", "score": 25, "triviaRepository": "trivia4.txt", "questions_asked": [1011]}, "admin": {"password": "admin", "score": 130, "triviaRepository": "trivia1.txt", "questions_asked": [1012, 1005, 1002]}}
