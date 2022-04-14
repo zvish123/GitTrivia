@@ -5,7 +5,7 @@
 import socket
 import chatlib
 import select
-
+import os
 # GLOBALS
 users = {}
 questions = {}
@@ -14,11 +14,12 @@ is_logged_in = False
 # Targil-8
 messages_to_send = [] # tuple: (socket, message)
 open_clients_sockets = []
+current_game = chatlib.DEFAULT_GAME
 
 ERROR_MSG = "Error! "
 SERVER_PORT = 5678
 SERVER_IP = "127.0.0.1"
-DEFAULT_QUESTION_FILE = r'.\TriviaFiles\questions.txt'
+DEFAULT_QUESTION_FILE = r'.\TriviaFiles\\' + current_game
 #QUESTION_FILE = r'C:\Users\user\trivia\Multiple_Choice_Trivia.txt'
 USERS_FILE = r'.\DB\users.txt'
 DISPLAY_MSG = True
@@ -61,7 +62,7 @@ def print_client_sockets():
         print(s.getpeername())
 
 # Data Loaders #
-def load_questions():
+def load_questions(trivia_game=DEFAULT_QUESTION_FILE):
     """
     Loads questions bank from file	## FILE SUPPORT TO BE ADDED LATER
     Recieves: -
@@ -70,7 +71,7 @@ def load_questions():
     global questions
     FIRST_QUESTION_NUMBER = 1000
 
-    with open (DEFAULT_QUESTION_FILE) as fp:
+    with open (trivia_game) as fp:
         for cnt, line in enumerate (fp):
             # print("Line {}: {}".format(cnt, line))
             list = line.split ('|')
@@ -315,6 +316,10 @@ def handle_client_message(conn, cmd, data):
             handle_highscore_message (conn, logged_users[conn.getpeername ()])
         elif cmd == chatlib.PROTOCOL_CLIENT["logged_users_msg"]:
             handle_get_logged_users_message (conn)
+        elif cmd == chatlib.PROTOCOL_CLIENT["get_games_msg"]:
+            handle_get_games_message (conn)
+        elif cmd == chatlib.PROTOCOL_CLIENT["send_game_selection_msg"]:
+            handle_get_game_Selection_message (conn, logged_users[conn.getpeername ()], data)
         else:
             send_error (conn, "Unknown command to server")
     else:
@@ -375,11 +380,68 @@ def handle_question_message(conn, user):
         cmd = chatlib.PROTOCOL_SERVER['your_question_msg']
         build_and_send_message (conn, cmd, random_question)
 
+def handle_get_games_message (conn):
+    global games
+    answer = ''
+    with open (r".\TriviaFiles\TriviaFiles.txt") as fp:
+        for line in fp:
+            data = line.split('|')
+            answer += data[0] + ": " + data[2] + " (" + data[3].split('\n')[0] + ")\n"
+    cmd = chatlib.PROTOCOL_SERVER['games_list_msg']
+    build_and_send_message (conn, cmd, answer)
+
+
+def clean_user_data(user):
+    global users
+    # opening the file in read mode
+    file = open(USERS_FILE, "r")
+    replacement = ""
+    # using the for loop
+    for line in file:
+        line = line.strip()
+        print(line)
+        parts = line.split('|')
+        if parts[0] == user and len(parts) > 3:
+            changes = parts[0] + '|' + parts[1] + '|' + parts[2]
+        else:
+            changes = line
+        replacement = replacement + changes + "\n"
+
+    file.close()
+    print(replacement)
+    # opening the file in write mode
+    fout = open(USERS_FILE, "w")
+    fout.write(replacement)
+    fout.close()
+    #print(users[user]['questions_asked'])
+    users[user]['questions_asked'] = []
+
+def handle_get_game_Selection_message (conn, user, reply):
+    global questions
+    global current_game
+    found = False
+    with open (r".\TriviaFiles\TriviaFiles.txt") as fp:
+        for line in fp:
+            data = line.split('|')
+            if data[0] == reply:
+                current_game = data[1]
+                file = r'.\TriviaFiles\\' + current_game
+                print("loading..  " + file)
+                questions = load_questions(file)
+                found = True
+    if found:
+        cmd = chatlib.PROTOCOL_SERVER['game_selection_ok_msg']
+        build_and_send_message (conn, cmd , "OK" + chatlib.MSG_DELIMITER +current_game)
+        clean_user_data(user)
+    else:
+        cmd = chatlib.PROTOCOL_SERVER['game_selection_not_ok_msg']
+        build_and_send_message (conn, cmd , "Not OK" + chatlib.MSG_DELIMITER + "")
+
+
 
 
 def handle_answer_message(conn, user, reply):
     '''
-
     :param conn:
     :param user:
     :param answer:

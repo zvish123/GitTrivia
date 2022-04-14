@@ -5,8 +5,11 @@ SERVER_IP = "127.0.0.1"  # Our server will run on same computer as client
 SERVER_PORT = 5678
 
 DISPLAY_MSG = False
-
+current_game = chatlib.DEFAULT_GAME
 # HELPER SOCKET METHODS
+menu_dict = {0:'Login',1:'Get score', 2:'Get Question', 3:'Send Answer',4:'Get High score',
+            5: 'Logged users',6:"Play Question", 7: 'Get Games list', 8: "Send Game Selection", 9:'Logout', 10:'Exit'}
+menu_str = ''
 
 def build_and_send_message(conn, code, msg, display=False):
     """
@@ -111,6 +114,15 @@ def get_highscore(socket):
         score = "Empty list"
     return score
 
+def get_games_list(socket):
+    cmd, msg = build_send_recv_parse(socket, chatlib.PROTOCOL_CLIENT["get_games_msg"], '' )
+    if cmd == chatlib.PROTOCOL_SERVER["games_list_msg"]:
+        reply = msg
+    else:
+        print('Problem in getting game list')
+        reply = "Empty list"
+    return reply
+
 def get_logged_users(socket):
     cmd, msg = build_send_recv_parse(socket, chatlib.PROTOCOL_CLIENT["logged_users_msg"], '' )
     if cmd == chatlib.PROTOCOL_SERVER["logged_answer_msg"]:
@@ -130,7 +142,7 @@ def format_question(msg):
 
 def get_question(conn):
     #print('socket:', conn)
-    cmd, msg = build_send_recv_parse (conn, chatlib.PROTOCOL_CLIENT["get_question_msg"], "", True)
+    cmd, msg = build_send_recv_parse (conn, chatlib.PROTOCOL_CLIENT["get_question_msg"], "", False)
     if cmd == chatlib.PROTOCOL_SERVER["your_question_msg"]:
         question, question_id = format_question(msg)
     elif cmd == chatlib.PROTOCOL_SERVER["no_questions_msg"]:
@@ -156,20 +168,44 @@ def send_answer(conn, question_id):
         answer = 'no answer'
     return answer
 
+
+def send_game_selection(conn, game_id):
+    global current_game
+    global menu_str
+    global menu_dict
+    answer = game_id
+    cmd, msg = build_send_recv_parse (conn, chatlib.PROTOCOL_CLIENT["send_game_selection_msg"], answer, False)
+    if cmd == chatlib.PROTOCOL_SERVER["game_selection_ok_msg"]:
+        current_game = msg.split(chatlib.MSG_DELIMITER)[1]
+        menu_str = "Select menu option:\n" + dict_to_str(menu_dict) + '\n'
+    elif cmd == chatlib.PROTOCOL_SERVER["game_selection_not_ok_msg"]:
+        answer = 'illegal selection'
+    else:
+        print('Problem in getting game selection')
+        answer = 'no selection'
+    return answer
+
+
 def dict_to_str(dict):
+    global current_game
     result = ""
-    for item in dict.items():
-        #print(item)
-        result += str(item[0]) + ': ' + str(item[1]) + ' '
+    for cnt, item in enumerate(dict.items()):
+        if item[0] != 2:
+            result += str(item[0]) + ': ' + str(item[1]) + ' '
+        else:
+            result += str(item[0]) + ': ' + str(item[1]) + f'({current_game}) '
+        if cnt == int(len(dict) / 2):
+            result += '\n'
     return result
 
 
 def main():
+    global menu_str
+    global menu_dict
     # Implement code
     client_socket = connect ()
 
-    dict = {0:'Login',1:'Get score', 2:'Get Question', 3:'Send Answer',4:'Get High score',5: 'Logged users',6:"Play Question", 8:'Logout', 9:'Exit'}
-    menu_str = "Select menu option:\n " + dict_to_str(dict) + '\n'
+    menu_str = "Select menu option:\n " + dict_to_str(menu_dict) + '\n'
 
     is_logged_in = False
     flag = True
@@ -196,10 +232,11 @@ def main():
                 if is_logged_in:
                     question, last_question_id =  get_question(client_socket)
                     if question is None or question==-1:
-                        logout (client_socket)
-                        is_logged_in = False
-                        client_socket=None
-                        flag=False
+                        # logout (client_socket)
+                        # is_logged_in = False
+                        # client_socket=None
+                        #flag=False
+                        pass
                     else:
                         print(question)
                 else:
@@ -229,17 +266,31 @@ def main():
                         is_logged_in = False
                         client_socket=None
                         flag=False
-
                 else:
                     print("Loging in order to play question")
+            elif option == 7:
+                if is_logged_in:
+                    games = get_games_list(client_socket)
+                    print(games)
+                else:
+                    print("Loging in order to get logged users")
+                    # load all available games from TriviaFiles.txt
+                    # client select one game
             elif option==8:
+                if is_logged_in:
+                    game_id = input("Enter game Id: ")
+                    answer =  send_game_selection(client_socket, game_id)
+                    print(answer)
+                else:
+                    print("Loging in order to get answer")
+            elif option==9:
                 if is_logged_in:
                     logout (client_socket)
                     is_logged_in = False
                     client_socket=None
                 else:
                     print('You should be logged in in order to logout')
-            elif option==9:
+            elif option==10:
                 if client_socket is not None:
                     logout (client_socket)
                     is_logged_in = False

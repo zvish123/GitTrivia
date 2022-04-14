@@ -18,7 +18,11 @@ COMMAND_ADDITIONAL_DATA = {
     "WRONG_ANSWER" : (1, None),
     "YOUR_SCORE" : (1, None),
     "ALL_SCORE" : (None, '\n'),
-    "ERROR" : (1, None)
+    "ERROR" : (1, None),
+    "GAMES_LIST" : (None, '\n'),
+    "GAME_SELECT_OK" : (2, '#'),
+    "GAME_SELECT_NOT_OK" : (2, '#'),
+    "SEND_GAME" : (1, None)
 }
 
 PROTOCOL_CLIENT = {
@@ -28,7 +32,9 @@ PROTOCOL_CLIENT = {
     'send_answer_msg' : 'SEND_ANSWER',
     'my_score_msg' : 'MY_SCORE',
     'highscore_msg' : 'HIGHSCORE',
-    'logged_users_msg' : 'LOGGED'
+    'logged_users_msg' : 'LOGGED',
+    'get_games_msg' : 'GET_GAMES',
+    'send_game_selection_msg' : 'SEND_GAME'
 }
 
 PROTOCOL_SERVER = {
@@ -41,11 +47,16 @@ PROTOCOL_SERVER = {
     "your_score_msg" : "YOUR_SCORE",
     "all_score_msg" : "ALL_SCORE",
     "error_msg" : "ERROR",
-    "no_questions_msg" : "NO_QUESTIONS"
+    "no_questions_msg" : "NO_QUESTIONS",
+    "games_list_msg" : "GAMES_LIST",
+    "game_selection_ok_msg" : "GAME_SELECT_OK",
+    "game_selection_not_ok_msg" : "GAME_SELECT_NOT_OK"
 }
 
 # Other constants
 ERROR_RETURN = None  # What is returned in case of an error
+
+DEFAULT_GAME = 'questions.txt'
 
 def is_valid(cmd, data):
     """

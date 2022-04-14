@@ -5,4 +5,3 @@
 5|trivia4.txt|The year 2022|15
 6|trivia5.txt|Colors|15
 7|Multiple_Choice_Trivia.txt|Big quiz|42
-
